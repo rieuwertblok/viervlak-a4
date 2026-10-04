@@ -1,0 +1,33 @@
+{
+  "id": "./",
+  "name": "Symmetriegroep van een regelmatig viervlak",
+  "short_name": "Viervlak A4",
+  "description": "Interactieve onderwijsapp voor de rotatiegroep A4 van een regelmatig viervlak.",
+  "lang": "nl-NL",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#e8f1f6",
+  "theme_color": "#17364c",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

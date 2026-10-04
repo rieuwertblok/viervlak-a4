@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="nl">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Viervlak A4 v1.9</title>
+    <style>
+        :root {
+            --ink: #17364c;
+            --line: #b9ccd9
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: linear-gradient(#f8fbfd, #e8f1f6);
+            font: 16px system-ui;
+            color: var(--ink)
+        }
+
+        main {
+            max-width: 1180px;
+            margin: auto;
+            padding: 16px
+        }
+
+        h1 {
+            text-align: center;
+            margin: 5px
+        }
+
+        .sub {
+            text-align: center;
+            color: #587386;
+            margin: 5px 0 16px
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 17px;
+            box-shadow: 0 8px 25px #2343 0
+        }
+
+        .dice {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            padding: 15px
+        }
+
+        .pane {
+            text-align: center
+        }
+
+        .pane h2 {
+            font-size: 1rem
+        }
+
+        .wrap {
+            height: 400px;
+            background: radial-gradient(circle, #fff, #e3edf4);
+            border: 1px solid #d0dfe9;
+            border-radius: 14px;
+            overflow: hidden
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block
+        }
+
+        .badge {
+            display: inline-block;
+            margin-top: 8px;
+            background: #e9f2f8;
+            border-radius: 99px;
+            padding: 7px 13px;
+            font-weight: 700
+        }
+
+        .xray {
+            margin: 14px 0;
+            padding: 14px 18px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 12px;
+            align-items: center
+        }
+
+        .xray input {
+            width: 100%;
+            accent-color: #315f86
+        }
+
+        .calc {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 15px;
+            padding: 15px
+        }
+
+        .box {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 14px
+        }
+
+        .keys {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px
+        }
+
+        .keys button:first-child {
+            grid-column: 1/-1
+        }
+
+        button {
+            min-height: 42px;
+            border: 1px solid #89a9bf;
+            border-radius: 99px;
+            background: linear-gradient(#fff, #e7f0f6);
+            font-weight: 700;
+            color: var(--ink);
+            cursor: pointer
+        }
+
+        .actions {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+            margin-top: 13px
+        }
+
+        .primary {
+            background: #f2ba48
+        }
+
+        .screen {
+            border-radius: 14px;
+            padding: 16px;
+            background: #17364c;
+            color: #edfaff;
+            font: 16px ui-monospace;
+            line-height: 1.7
+        }
+
+        .dim {
+            color: #a9c8d9
+        }
+
+        .status {
+            color: #c9e7f5;
+            min-height: 1.5em
+        }
+
+        @media(max-width:720px) {
+
+            .dice,
+            .calc {
+                grid-template-columns: 1fr
+            }
+
+            .wrap {
+                height: 310px
+            }
+
+            .keys {
+                grid-template-columns: repeat(3, 1fr)
+            }
+
+            main {
+                padding: 8px
+            }
+        }
+    </style>
+
+    <meta name="theme-color" content="#17364c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Viervlak A4">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="./icons/icon-192.png" sizes="192x192" type="image/png">
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+</head>
+
+<body>
+    <main>
+        <h1>Symmetriegroep van een regelmatig viervlak</h1>
+        <p class="sub">Rotatiegroep A₄ · versie 1.9</p>
+        <section class="card dice">
+            <div class="pane">
+                <h2>Referentieoriëntatie</h2>
+                <div class="wrap"><canvas id="left"></canvas></div>
+                <div class="badge">T = e</div>
+            </div>
+            <div class="pane">
+                <h2>Actuele stand</h2>
+                <div class="wrap"><canvas id="right"></canvas></div>
+                <div class="badge">Transformatie T = <span id="tv">e</span></div>
+            </div>
+        </section>
+        <section class="card xray"><b>Röntgenmodus</b><input id="xr" type="range" min="0" max="100" value="40"><output
+                id="xrv">40%</output></section>
+        <section class="card calc">
+            <div class="box"><b>Groepselementen</b>
+                <div class="keys" id="keys"></div>
+                <div class="actions"><button class="primary" id="go">Bereken</button><button id="clear">Wis
+                        invoer</button><button id="reset">Reset dobbelsteen</button></div>
+            </div>
+            <div class="screen">
+                <div><span class="dim">Invoer:</span> <span id="inp">—</span></div>
+                <div><span class="dim">Product:</span> <span id="prod">—</span></div>
+                <div><span class="dim">T =</span> <span id="st">e</span></div>
+                <div id="msg" class="status"></div>
+            </div>
+        </section>
+    </main>
+    <script>(() => {
+            'use strict';
+            const names = ['e', '(12)(34)', '(13)(24)', '(14)(23)', '(123)', '(132)', '(124)', '(142)', '(134)', '(143)', '(234)', '(243)'];
+            const P = { 'e': [0, 1, 2, 3], '(12)(34)': [1, 0, 3, 2], '(13)(24)': [2, 3, 0, 1], '(14)(23)': [3, 2, 1, 0], '(123)': [1, 2, 0, 3], '(132)': [2, 0, 1, 3], '(124)': [1, 3, 2, 0], '(142)': [3, 0, 2, 1], '(134)': [2, 1, 3, 0], '(143)': [3, 1, 0, 2], '(234)': [0, 2, 3, 1], '(243)': [0, 3, 1, 2] };
+            const add = (a, b) => a.map((x, i) => x + b[i]), sub = (a, b) => a.map((x, i) => x - b[i]), sc = (a, s) => a.map(x => x * s), dot = (a, b) => a.reduce((s, x, i) => s + x * b[i], 0), cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]], norm = a => { let m = Math.hypot(...a); return a.map(x => x / m) }, mv = (M, v) => M.map(r => dot(r, v)), comp = (a, b) => b.map(x => a[x]), inv = p => { const q = []; p.forEach((image, original) => { q[image] = original }); return q }, key = p => names.find(n => P[n].every((x, i) => x === p[i]));
+            const V = [[1, 1, 1], [1, -1, -1], [-1, 1, -1], [-1, -1, 1]].map(norm), F = [[1, 2, 3], [0, 3, 2], [0, 1, 3], [0, 2, 1]], C = ['#df3439', '#2777d4', '#25a75b', '#ef8c22'];
+            function rot(p) { let R = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]; for (let i = 0; i < 4; i++)for (let r = 0; r < 3; r++)for (let c = 0; c < 3; c++)R[r][c] += .75 * V[p[i]][r] * V[i][c]; return R }
+            function qfm(m) { let t = m[0][0] + m[1][1] + m[2][2], q; if (t > 0) { let s = Math.sqrt(t + 1) * 2; q = [.25 * s, (m[2][1] - m[1][2]) / s, (m[0][2] - m[2][0]) / s, (m[1][0] - m[0][1]) / s] } else { let i = m[0][0] > m[1][1] ? (m[0][0] > m[2][2] ? 0 : 2) : (m[1][1] > m[2][2] ? 1 : 2), j = (i + 1) % 3, k = (i + 2) % 3, s = Math.sqrt(1 + m[i][i] - m[j][j] - m[k][k]) * 2; q = [(m[k][j] - m[j][k]) / s, 0, 0, 0]; q[i + 1] = s / 4; q[j + 1] = (m[j][i] + m[i][j]) / s; q[k + 1] = (m[k][i] + m[i][k]) / s } return norm(q) }
+            function mfq([w, x, y, z]) { return [[1 - 2 * y * y - 2 * z * z, 2 * x * y - 2 * z * w, 2 * x * z + 2 * y * w], [2 * x * y + 2 * z * w, 1 - 2 * x * x - 2 * z * z, 2 * y * z - 2 * x * w], [2 * x * z - 2 * y * w, 2 * y * z + 2 * x * w, 1 - 2 * x * x - 2 * y * y]] } function sl(a, b, t) { let d = dot(a, b); if (d < 0) { b = b.map(x => -x); d = -d } if (d > .9995) return norm(a.map((x, i) => x + t * (b[i] - x))); let z = Math.acos(Math.min(1, d)), s = Math.sin(z); return a.map((x, i) => (Math.sin((1 - t) * z) * x + Math.sin(t * z) * b[i]) / s) }
+            const eye = norm([.38, .71, 1.27]), up = norm([-.18, 1, .12]), cx = norm(cross(up, eye)), cy = norm(cross(eye, cx)); let xr = 40, input = [], cur = [0, 1, 2, 3], dq = qfm(rot(cur)), anim = null;
+            function setup(c) { let d = devicePixelRatio || 1, r = c.getBoundingClientRect(), w = Math.round(r.width * d), h = Math.round(r.height * d); if (c.width !== w || c.height !== h) { c.width = w; c.height = h } return [c.getContext('2d'), w, h, d] }
+            function proj(v, w, h, S) { return [w / 2 + dot(v, cx) * S, h * .52 - dot(v, cy) * S] }
+            function poly(ctx, p, r) {
+                // Rond elk zichtbaar hoekpunt af met een schermvaste straal.
+                // De limiet van 24% voorkomt dat de afrondingen elkaar op smalle projecties raken.
+                const corners = p.map((b, i) => {
+                    const a = p[(i + p.length - 1) % p.length];
+                    const c = p[(i + 1) % p.length];
+                    const inFraction = Math.min(r / Math.hypot(...sub(a, b)), .24);
+                    const outFraction = Math.min(r / Math.hypot(...sub(c, b)), .24);
+                    return {
+                        before: add(b, sc(sub(a, b), inFraction)),
+                        vertex: b,
+                        after: add(b, sc(sub(c, b), outFraction))
+                    };
+                });
+
+                ctx.beginPath();
+                ctx.moveTo(...corners[0].before);
+                for (const corner of corners) {
+                    ctx.quadraticCurveTo(...corner.vertex, ...corner.after);
+                    const next = corners[(corners.indexOf(corner) + 1) % corners.length];
+                    ctx.lineTo(...next.before);
+                }
+                ctx.closePath();
+            }
+            function shade(hex, a) { let n = parseInt(hex.slice(1), 16), v = [n >> 16, (n >> 8) & 255, n & 255].map(x => Math.max(0, Math.min(255, Math.round(x + (a >= 0 ? (255 - x) * a : x * a))))); return v } function rgba(hex, a) { let v = shade(hex, 0); return `rgba(${v[0]},${v[1]},${v[2]},${a})` }
+            function ellipse(ctx, o, u, v, r, w, h, S, k = 1) { ctx.beginPath(); for (let j = 0; j <= 36; j++) { let a = j / 36 * Math.PI * 2, p = proj(add(o, add(sc(u, Math.cos(a) * r * k), sc(v, Math.sin(a) * r * k))), w, h, S); j ? ctx.lineTo(...p) : ctx.moveTo(...p) } ctx.closePath() }
+            function pip(ctx, o, u, v, w, h, S, a) { ellipse(ctx, o, u, v, .082, w, h, S, 1.08); ctx.fillStyle = `rgba(12,18,21,${.25 * a})`; ctx.fill(); ellipse(ctx, o, u, v, .074, w, h, S); ctx.fillStyle = `rgba(15,20,23,${.9 * a})`; ctx.fill(); ellipse(ctx, o, u, v, .052, w, h, S); ctx.fillStyle = `rgba(4,8,10,${.54 * a})`; ctx.fill() }
+            function render(canvas, q) {
+                let [ctx, w, h, d] = setup(canvas), R = mfq(q), rv = V.map(v => mv(R, v)), S = Math.min(w, h) * .36, p = rv.map(v => proj(v, w, h, S)), z = rv.map(v => dot(v, eye)); ctx.clearRect(0, 0, w, h); let list = F.map((f, i) => ({ f, i, z: f.reduce((s, k) => s + z[k], 0) / 3 })).sort((a, b) => a.z - b.z);
+                for (let it of list) {
+                    let f = it.f, i = it.i, pp = f.map(k => p[k]), front = it.z > 0, a = Math.max(.06, Math.min(.94, front ? .92 - xr / 100 * .52 : .06 + xr / 100 * .48)); poly(ctx, pp, 12 * d); let g = ctx.createRadialGradient(w * .44, h * .34, 2, w * .5, h * .5, S); g.addColorStop(0, rgba(C[i], a)); g.addColorStop(1, rgba('#101820', a * .82)); ctx.fillStyle = g; ctx.fill(); ctx.lineWidth = (front ? 3 : 1.5) * d; ctx.strokeStyle = `rgba(25,40,49,${front ? .78 : .25 + xr / 100 * .35})`; ctx.stroke();
+                    const q3 = f.map(k => rv[k]);
+                    const A = q3[0], B = q3[1], D = q3[2];
+                    const u = norm(sub(B, A));
+                    const n = norm(cross(sub(B, A), sub(D, A)));
+                    const v = norm(cross(n, u));
+
+                    // Barycentrische oogposities: elke triple [a,b,c] voldoet aan
+                    // a + b + c = 1 en a,b,c > 0, dus ieder oog ligt gegarandeerd in het vlak.
+                    const s = .13;
+                    const center = [1 / 3, 1 / 3, 1 / 3];
+                    const triangle = [
+                        [1 / 3 + s, 1 / 3 - s / 2, 1 / 3 - s / 2],
+                        [1 / 3 - s / 2, 1 / 3 + s, 1 / 3 - s / 2],
+                        [1 / 3 - s / 2, 1 / 3 - s / 2, 1 / 3 + s]
+                    ];
+                    const patterns = [
+                        [center],
+                        [
+                            [1 / 3 + s, 1 / 3 - s, 1 / 3],
+                            [1 / 3 - s, 1 / 3 + s, 1 / 3]
+                        ],
+                        triangle,
+                        [...triangle, center]
+                    ];
+                    const barycentricPoint = ([a, b, c]) => add(add(sc(A, a), sc(B, b)), sc(D, c));
+
+                    ctx.save();
+                    poly(ctx, pp, 18 * d);
+                    ctx.clip();
+                    for (const weights of patterns[i]) {
+                        pip(ctx, barycentricPoint(weights), u, v, w, h, S, front ? .98 : .36 + xr / 100 * .56);
+                    }
+                    ctx.restore();
+                }
+            }
+            const L = document.querySelector('#left'), RR = document.querySelector('#right'), id = qfm(rot([0, 1, 2, 3])); function frame(t) { if (anim) { let x = Math.min(1, (t - anim.t) / 650), e = x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; dq = sl(anim.a, anim.b, e); if (x === 1) { dq = anim.b; anim = null; msg.textContent = 'Rotatie voltooid.' } } render(L, id); render(RR, dq); requestAnimationFrame(frame) } requestAnimationFrame(frame);
+            const inp = document.querySelector('#inp'), prod = document.querySelector('#prod'), tv = document.querySelector('#tv'), st = document.querySelector('#st'), msg = document.querySelector('#msg'); function ui() { inp.textContent = input.length ? input.join(' · ') : '—' } names.forEach(n => { let b = document.createElement('button'); b.textContent = n; b.onclick = () => { input.unshift(n); ui(); prod.textContent = '—'; msg.textContent = n + ' links toegevoegd.' }; keys.appendChild(b) }); go.onclick = () => {
+                if (!input.length) {
+                    msg.textContent = 'Kies eerst een groepselement.';
+                    return;
+                }
+                let p = [0, 1, 2, 3];
+                for (let i = input.length - 1; i >= 0; i--) p = comp(P[input[i]], p);
+                prod.textContent = key(p);
+
+                // t is de actuele stand. Alleen de uit te voeren transformatie wordt
+                // geconjugeerd: P wordt t · P · t⁻¹. Daarna werkt die transformatie op t.
+                const t = cur;
+                const conjugatedP = comp(comp(t, p), inv(t));
+                cur = comp(conjugatedP, t);
+
+                tv.textContent = st.textContent = key(cur);
+                input = [];
+                ui();
+                anim = { a: dq, b: qfm(rot(cur)), t: performance.now() };
+                msg.textContent = 'Rotatie wordt uitgevoerd…';
+            }; clear.onclick = () => { input = []; ui(); prod.textContent = '—'; msg.textContent = 'Invoer gewist.' }; reset.onclick = () => { input = []; cur = [0, 1, 2, 3]; ui(); prod.textContent = '—'; tv.textContent = st.textContent = 'e'; anim = { a: dq, b: id, t: performance.now() }; msg.textContent = 'Beginstand hersteld.' }; document.querySelector('#xr').oninput = e => { xr = +e.target.value; xrv.textContent = xr + '%' };
+        })();</script>
+
+    <script>
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("./service-worker.js")
+                    .catch(error => console.error("Service worker kon niet worden geregistreerd:", error));
+            });
+        }
+    </script>
+</body>
+
+</html>
